@@ -3116,7 +3116,7 @@ var Game;
         Engine.System.createEvent(Engine.EventType.TIME_UPDATE, "onDrawTextFront");
         Engine.System.createEvent(Engine.EventType.CLEAR_SCENE, "onClearScene");
         for (var i = 1; i <= Game.MAX_LEVELS; i += 1) {
-            Game.dataLevels[i] = Engine.Data.load("level" + i) || "locked";
+            Game.dataLevels[i] = Engine.Data.load("level" + i) || "unlocked";
         }
         if (Game.dataLevels[1] == "locked") {
             Game.dataLevels[1] = "unlocked";
@@ -8738,8 +8738,8 @@ var Game;
             Resources.textureGooglePlay = new Engine.Texture(PATH_GOOGLE_PLAY_LOGO, false, true);
             Resources.textureGooglePlay.preserved = true;
         }
-        var vscale = 1.2;
-        var vscale2 = 0.8;
+        var vscale = 0.9;
+        var vscale2 = 0.2;
         vscale *= vscale2;
         Resources.bgm = new Engine.AudioPlayer(PATH_BGM);
         Resources.bgm.preserved = true;
