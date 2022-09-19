@@ -6949,20 +6949,49 @@ var Game;
             _super.prototype.onReset.call(this);
             //triggerActions("play");
         };
+        Level.prototype.onStart = function () {
+            Level.practiceFinished = false;
+            if (Game.SceneFreezer.paused)
+                Game.PauseButton.instance.onPressed();
+            Game.LevelPauseUI.instance.text.str = Game.LevelPauseUI.STR;
+        };
         Level.prototype.onStepUpdate = function () {
             _super.prototype.onStepUpdate.call(this);
             if (this.nextSceneClass == null && Game.Player.instance.hasWon) {
-                if (Level.index == Game.MAX_LEVELS) {
-                    this.stepsWait = Game.STEPS_CHANGE_SCENE;
-                    this.nextSceneClass = Game.LastScene;
-                    Game.triggerActions("winlastlevel");
+                if (!Level.speedrun){
+                    if (!Level.practiceFinished) {
+                        if (!Game.SceneFreezer.paused)
+                            Game.PauseButton.instance.onPressed();
+                        Level.practiceFinished = true;
+                        Game.LevelPauseUI.instance.text.str = "STAGE TIME: " + Game.SpeedrunTimer.instance.getStr();
+                        Game.SpeedrunTimer.instance.text.str = "";
+                    }
+                    else if (!Game.SceneFreezer.stoped) {
+                        if (Level.index == Game.MAX_LEVELS) {
+                            this.stepsWait = Game.STEPS_CHANGE_SCENE;
+                            this.nextSceneClass = Game.LastScene;
+                            Game.triggerActions("winlastlevel");
+                        }
+                        else {
+                            this.nextSceneClass = Level;
+                            Game.triggerActions("playlevelbutton");
+                            Game.triggerActions("winlevel");
+                        }
+                    }
                 }
                 else {
-                    this.nextSceneClass = Level;
-                    Game.triggerActions("playlevelbutton");
-                    Game.triggerActions("winlevel");
+                    if (Level.index == Game.MAX_LEVELS) {
+                        this.stepsWait = Game.STEPS_CHANGE_SCENE;
+                        this.nextSceneClass = Game.LastScene;
+                        Game.triggerActions("winlastlevel");
+                    }
+                    else {
+                        this.nextSceneClass = Level;
+                        Game.triggerActions("playlevelbutton");
+                        Game.triggerActions("winlevel");
+                    }
+                    Game.triggerActions("lose");
                 }
-                Game.triggerActions("lose");
             }
             if (this.nextSceneClass == null && Game.Player.instance.hasLost) {
                 this.nextSceneClass = "reset";
@@ -7041,6 +7070,7 @@ var Game;
             Level.instance = null;
         };
         Level.nextIndex = 1;
+        Level.practiceFinished = false;
         return Level;
     }(Game.SceneMap));
     Game.Level = Level;
@@ -7117,6 +7147,7 @@ var Game;
         __extends(LevelPauseUI, _super);
         function LevelPauseUI() {
             var _this = _super.call(this) || this;
+            LevelPauseUI.instance = _this;
             _this.fill = new Engine.Sprite();
             _this.fill.enabled = true;
             _this.fill.pinned = true;
@@ -7127,7 +7158,7 @@ var Game;
             _this.text.scale = 1;
             _this.text.enabled = false;
             _this.text.pinned = true;
-            _this.text.str = "PAUSED";
+            _this.text.str = LevelPauseUI.STR;
             _this.text.xAlignBounds = Utils.AnchorAlignment.MIDDLE;
             _this.text.xAlignView = Utils.AnchorAlignment.MIDDLE;
             _this.text.yAlignBounds = Utils.AnchorAlignment.MIDDLE;
@@ -7158,6 +7189,7 @@ var Game;
                 }
             }
         };
+        LevelPauseUI.STR = "PAUSED";
         return LevelPauseUI;
     }(Engine.Entity));
     Game.LevelPauseUI = LevelPauseUI;
@@ -8049,6 +8081,7 @@ var Game;
         __extends(SpeedrunTimer, _super);
         function SpeedrunTimer() {
             var _this = _super.call(this) || this;
+            SpeedrunTimer.instance = _this;
             _this.text = new Utils.Text();
             _this.textDown = null;
             _this.levelSteps = 0;
